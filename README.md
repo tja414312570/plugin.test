@@ -1,5 +1,5 @@
 # plugin.test
-基于junit5的测试组件
+基于junit5的测试组件，用于提供Plugin基准测试，自动化测试，以及生成测试报告的能力
 ## 最简单的测试
 ```java
 package test.plugin.mvc;
