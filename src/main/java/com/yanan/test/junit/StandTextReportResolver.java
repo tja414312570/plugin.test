@@ -6,6 +6,7 @@ import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -15,6 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.yanan.frame.plugin.annotations.Register;
+import com.yanan.frame.plugin.handler.MethodHandler;
 import com.yanan.framework.resource.DefaultResourceLoader;
 import com.yanan.framework.resource.ResourceLoader;
 import com.yanan.framework.resource.ResourceLoaderException;
@@ -59,30 +61,51 @@ public class StandTextReportResolver implements PluginTestReportResolver{
 		try {
 			outputStream = resource.getOutputStream();
 			writer = new OutputStreamWriter(outputStream);
-			writerLn(writer,"Plugin test report "+VERSION);
+			writerLn(writer,"-----------------------------------------------------------");
+			writerLn(writer,"    PLUGIN TEST REPORT "+VERSION);
+			writerLn(writer,"-----------------------------------------------------------");
 			writerLn(writer,"test name  : "+mainContext.getDisplayName());
 			writerLn(writer,"test class : "+mainContext.getRequiredTestClass().getName());
 			writerLn(writer,"test date  : "+LocalDateTime.now());
+			writerLn(writer,"test times : "+context.getTestTimes()+" ms");
 			double rate = (double)context.getSuccessCount()/(double)context.getAllCount();
-			writerLn(writer,"test result: "+String.format("all case num :%s ,errors : %s ,failures : %s ,rate: %.2f %%", 
+			writerLn(writer,"test result: "+String.format("all :%s ,errors : %s ,failures : %s ,rate: %.2f %%", 
 					context.getAllCount(),context.getErrorCount(),context.getFailedCount(),rate));
 			writerLn(writer,"---------------------the-report-details--------------------");
+			writerLn(writer,"");
 			for(ExtensionContext caseContext : contextList) {
+				writerLn(writer,"-----------------------------------------------------------");
 				Throwable error = caseContext.getExecutionException().orElse(null);
 				String caseName = context.getMethodToken(caseContext);
+				long times = context.getTestTime(caseContext);
+				MethodHandler methodHandler = context.getTestCaseVariable(caseContext, TestMethodHandler.METHOD_HANDLER_TOKEN);
 				if(error != null) {
 					if(AppClassLoader.extendsOf(error.getClass(), AssertionFailedError.class)) {
-						if(matchType(ReportType.FAILED))
-						writerLn(writer,String.format("display:%s  result:failed  message:%s", caseName,error.getMessage()));
+						if(matchType(ReportType.FAILED)) {
+							writerLn(writer,"case name     : "+caseName);
+							writerLn(writer,"case result   : failed");
+							writerLn(writer,"case times    : "+times+" ms");
+							writerLn(writer,"case message  : "+error.getMessage());
+							writerLn(writer,"case parameter: "+Arrays.toString(methodHandler.getParameters()));
+						}
+//						writerLn(writer,String.format("name:%s  result:failed  message:%s  times:%s ms  parameters:%s", caseName,error.getMessage(),times,Arrays.toString(methodHandler.getParameters())));
 					}else if(matchType(ReportType.ERROR)) {
-						writerLn(writer,String.format("display:%s  result:error  message:%s", caseName,error.getMessage()));
+						writerLn(writer,"case name     : "+caseName);
+						writerLn(writer,"case result   : error");
+						writerLn(writer,"case times    : "+times+" ms");
+						writerLn(writer,"case message  : "+error.getMessage());
+						writerLn(writer,"case parameter: "+Arrays.toString(methodHandler.getParameters()));
 						writerLn(writer,error.getClass().getName()+(error.getMessage()==null?"":":"+error.getMessage()));
 						for(StackTraceElement stack : error.getStackTrace()) {
-							writerLn(writer,"      at:"+stack.getClassName()+"."+stack.getMethodName()+"("+stack.getLineNumber()+")");
+							writerLn(writer,"      at "+stack.getClassName()+"."+stack.getMethodName()+"("+stack.getFileName()+":"+stack.getLineNumber()+")");
 						}
 					}
 				}else if(matchType(ReportType.SUCCESS)){
-					writerLn(writer,String.format("display:%s  result:success", caseName));
+					writerLn(writer,"case name     : "+caseName);
+					writerLn(writer,"case result   : sucess");
+					writerLn(writer,"case times    : "+times+" ms");
+					writerLn(writer,"case parameter: "+Arrays.toString(methodHandler.getParameters()));
+//					writerLn(writer,String.format("name:%s  result:success  times:%s ms", caseName,times));
 				}
 				writerLn(writer,"");
 			}

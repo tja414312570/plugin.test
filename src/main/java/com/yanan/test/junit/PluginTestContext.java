@@ -2,7 +2,9 @@ package com.yanan.test.junit;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.junit.jupiter.api.extension.ExtensionContext;
@@ -27,6 +29,9 @@ import com.yanan.utils.resource.ResourceManager;
  */
 public class PluginTestContext{
 	private static final String TEST_CASE_TOKEN = "_plugin_test_case";
+	private static final String TIME_START_TOKEN = "_plugin_test_start_time";
+	private static final String TIME_TEST_TOKEN = "_plugin_test_time";
+	private static final String CONTEXT_VARIABLE_TOKEN = "_plugin_test_variable";;
 	private static Logger logger =LoggerFactory.getLogger(PluginTestContext.class);
 	private static Environment environment;
 	static {
@@ -40,6 +45,7 @@ public class PluginTestContext{
 	private long startTimes;
 	private int allCount;
 	private List<ExtensionContext> testContextSet;
+	private static ThreadLocal<ExtensionContext> contextThreadLocal = new InheritableThreadLocal<>();
 	public List<ExtensionContext> getTestContextSet() {
 		return testContextSet;
 	}
@@ -115,6 +121,7 @@ public class PluginTestContext{
 	private static void prparedBootEnvrionment(ExtensionContext context) {
 		try {
 			PlugsFactory.init();
+			PlugsFactory.getInstance().addRegisterDefinition(TestMethodHandler.class);
 		}catch(RuntimeException t) {
 			logger.error("a error occur when prepared boot environment",t);
 			throw t;
@@ -185,8 +192,24 @@ public class PluginTestContext{
 		return stringBuilder.toString();
 	}
 	public void addTestCase(ExtensionContext context) {
+		Store store = context.getRoot().getStore(PluginExetension.NAMESPACE);
+		store.put(context.getUniqueId()+TIME_START_TOKEN, System.currentTimeMillis());
+		contextThreadLocal.set(context);
+	}
+	public void completedTestCase(ExtensionContext context) {
+		Store store = context.getRoot().getStore(PluginExetension.NAMESPACE);
+		long times = System.currentTimeMillis()-store.get(context.getUniqueId()+TIME_START_TOKEN, Long.class);
+		store.put(context.getUniqueId()+TIME_TEST_TOKEN,times);
 		List<ExtensionContext> caseSet =  getCaseSet(context);
 		caseSet.add(context);
+		contextThreadLocal.remove();
+	}
+	public static ExtensionContext getCurrentTestContext() {
+		return contextThreadLocal.get();
+	}
+	public long getTestTime(ExtensionContext context) {
+		Store store = context.getRoot().getStore(PluginExetension.NAMESPACE);
+		return store.get(context.getUniqueId()+TIME_TEST_TOKEN,Long.class);
 	}
 	public List<ExtensionContext> getCaseSet(ExtensionContext context) {
 		Store store = context.getRoot().getStore(PluginExetension.NAMESPACE);
@@ -207,5 +230,23 @@ public class PluginTestContext{
 	}
 	public int getAllCount() {
 		return allCount;
+	}
+	public void addTestCaseVariable(ExtensionContext context, String key,Object value) {
+		Store store = context.getRoot().getStore(PluginExetension.NAMESPACE);
+		String rootId = (context.getUniqueId()+CONTEXT_VARIABLE_TOKEN).intern();
+		environment.executorOnce(rootId, ()->{
+			store.put(rootId, new HashMap<>());
+		});
+		Map<String,Object> variable = store.get(rootId,new TypeToken<Map<String,Object>>(){}.getTypeClass());
+		variable.put(key, value);
+	}
+	@SuppressWarnings("unchecked")
+	public <T> T getTestCaseVariable(ExtensionContext context, String key) {
+		Store store = context.getRoot().getStore(PluginExetension.NAMESPACE);
+		String rootId = (context.getUniqueId()+CONTEXT_VARIABLE_TOKEN).intern();
+		Map<String,Object> variable = store.get(rootId,new TypeToken<Map<String,Object>>(){}.getTypeClass());
+		if(variable == null)
+			return null;
+		return (T) variable.get(key);
 	}
 }

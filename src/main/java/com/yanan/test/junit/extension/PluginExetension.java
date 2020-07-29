@@ -8,7 +8,6 @@ import org.junit.jupiter.api.extension.BeforeEachCallback;
 import org.junit.jupiter.api.extension.BeforeTestExecutionCallback;
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.api.extension.ExtensionContext.Namespace;
-import org.junit.jupiter.api.extension.ExtensionContext.Store;
 import org.junit.jupiter.api.extension.ParameterContext;
 import org.junit.jupiter.api.extension.ParameterResolutionException;
 import org.junit.jupiter.api.extension.ParameterResolver;
@@ -25,7 +24,6 @@ import com.yanan.frame.plugin.builder.PluginInstanceFactory;
 import com.yanan.test.junit.PluginTestContext;
 import com.yanan.utils.reflect.AppClassLoader;
 
-import junit.framework.AssertionFailedError;
 
 /**
  * Plugin 测试环境上下文扩展
@@ -57,11 +55,13 @@ ParameterResolver,TestInstanceFactory,TestInstancePreDestroyCallback{
 	@Override
 	public void afterTestExecution(ExtensionContext context) throws Exception {
 		PluginTestContext testContext = PluginTestContext.getTestContext(context);
-		testContext.addTestCase(context);
+		testContext.completedTestCase(context);
 		logger.debug(String.format("prepared test instance for class : %s", context.getRequiredTestClass()));
 	}
 	@Override
 	public void beforeTestExecution(ExtensionContext context) throws Exception {
+		PluginTestContext testContext = PluginTestContext.getTestContext(context);
+		testContext.addTestCase(context);
 	}
 	@Override
 	public void afterEach(ExtensionContext context) throws Exception {
