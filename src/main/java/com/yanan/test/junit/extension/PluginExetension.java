@@ -25,6 +25,8 @@ import com.yanan.frame.plugin.builder.PluginInstanceFactory;
 import com.yanan.test.junit.PluginTestContext;
 import com.yanan.utils.reflect.AppClassLoader;
 
+import junit.framework.AssertionFailedError;
+
 /**
  * Plugin 测试环境上下文扩展
  * 
@@ -38,9 +40,8 @@ ParameterResolver,TestInstanceFactory,TestInstancePreDestroyCallback{
 	public static final Namespace NAMESPACE = Namespace.create(PluginExetension.class);
 	@Override
 	public void beforeAll(ExtensionContext context) throws Exception {
-		Store store = context.getRoot().getStore(NAMESPACE);
-		store.put("name", context.getDisplayName());
-		store.put("starttime", System.currentTimeMillis());
+		PluginTestContext testContext = PluginTestContext.getTestContext(context);
+		testContext.beginTest();
 	}
 	@Override
 	public boolean supportsParameter(ParameterContext parameterContext, ExtensionContext extensionContext)
@@ -55,22 +56,16 @@ ParameterResolver,TestInstanceFactory,TestInstancePreDestroyCallback{
 	}
 	@Override
 	public void afterTestExecution(ExtensionContext context) throws Exception {
-		
+		PluginTestContext testContext = PluginTestContext.getTestContext(context);
+		testContext.addTestCase(context);
+		logger.debug(String.format("prepared test instance for class : %s", context.getRequiredTestClass()));
 	}
 	@Override
 	public void beforeTestExecution(ExtensionContext context) throws Exception {
 	}
 	@Override
 	public void afterEach(ExtensionContext context) throws Exception {
-		PluginTestContext testContext = PluginTestContext.getTestContext(context);
-		Store store = context.getRoot().getStore(NAMESPACE);
-		store.put(getMethodToken(context), context);
-		testContext.addTestCase(context);
-		logger.debug(String.format("prepared test instance for class : %s", context.getRequiredTestClass()));
-	}
-	private String getMethodToken(ExtensionContext context) {
-		StringBuilder stringBuilder = new StringBuilder(context.getDisplayName());
-		return stringBuilder.toString();
+	
 	}
 	@Override
 	public void beforeEach(ExtensionContext context) throws Exception {
@@ -81,11 +76,8 @@ ParameterResolver,TestInstanceFactory,TestInstancePreDestroyCallback{
 	@Override
 	public void afterAll(ExtensionContext context) throws Exception {
 		PluginTestContext testContext = PluginTestContext.getTestContext(context);
-		Store store = context.getRoot().getStore(NAMESPACE);
-		System.out.println(store.get("name", String.class));
-		long times = System.currentTimeMillis() - store.get("starttime",Long.class);
 		testContext.testCompleted(context);
-		logger.debug(String.format("all test completed at [%s ms]", times));
+		logger.debug(String.format("all test completed at [%s ms]", testContext.getTestTimes()));
 		PlugsFactory.getInstance().destory();
 	}
 	@Override

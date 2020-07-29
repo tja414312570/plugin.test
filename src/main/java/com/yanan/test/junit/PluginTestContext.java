@@ -1,9 +1,13 @@
 package com.yanan.test.junit;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.api.extension.ExtensionContext.Store;
+import org.opentest4j.AssertionFailedError;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -11,7 +15,10 @@ import com.yanan.frame.plugin.Environment;
 import com.yanan.frame.plugin.PlugsFactory;
 import com.yanan.test.junit.extension.PluginExetension;
 import com.yanan.utils.asserts.Assert;
+import com.yanan.utils.reflect.AppClassLoader;
+import com.yanan.utils.reflect.TypeToken;
 import com.yanan.utils.resource.ResourceManager;
+
 
 /**
  * 组件测试上下文
@@ -19,14 +26,34 @@ import com.yanan.utils.resource.ResourceManager;
  *
  */
 public class PluginTestContext{
+	private static final String TEST_CASE_TOKEN = "_plugin_test_case";
 	private static Logger logger =LoggerFactory.getLogger(PluginTestContext.class);
 	private static Environment environment;
 	static {
 		environment = Environment.getEnviroment();
 	}
 	private ExtensionContext extensionContext;
+	private int failedCount;
+	private int errorCount;
+	private int successCount;
+	private long testTimes;
+	private long startTimes;
+	private int allCount;
+	private List<ExtensionContext> testContextSet;
+	public List<ExtensionContext> getTestContextSet() {
+		return testContextSet;
+	}
 	public PluginTestContext(ExtensionContext context) {
 		this.setExtensionContext(context);
+	}
+	public int getFailedCount() {
+		return failedCount;
+	}
+	public int getErrorCount() {
+		return errorCount;
+	}
+	public int getSuccessCount() {
+		return successCount;
 	}
 	/**
 	 * 获取测试上下文
@@ -66,12 +93,32 @@ public class PluginTestContext{
 			long start = System.currentTimeMillis();
 			//初始化Plugin
 			prparedBootEnvrionment(context);
+			//准备报告解析器
+			preparedReportResolver(context);
 			long times = System.currentTimeMillis()-start;
 			logger.info("plugin started at ["+times+" ms]");
 		});
 	}
+	private static void preparedReportResolver(ExtensionContext context) {
+		try {
+			PlugsFactory.getInstance().addPlugininDefinition(PluginTestReportResolver.class);
+			ReportResolver reportResolver = context.getRequiredTestClass().getAnnotation(ReportResolver.class);
+			if(reportResolver != null) {
+				for(Class<?> resolverClass : reportResolver.value()) {
+					PlugsFactory.getInstance().addRegisterDefinition(resolverClass);
+				}
+			}
+		}catch(Throwable t) {
+			logger.error("a error occur when prepared report resolver",t);
+		}
+	}
 	private static void prparedBootEnvrionment(ExtensionContext context) {
-		PlugsFactory.init();
+		try {
+			PlugsFactory.init();
+		}catch(RuntimeException t) {
+			logger.error("a error occur when prepared boot environment",t);
+			throw t;
+		}
 	}
 	public ExtensionContext getExtensionContext() {
 		return extensionContext;
@@ -85,10 +132,80 @@ public class PluginTestContext{
 		return PlugsFactory.getPluginsInstance(testClass);
 	}
 	public void testCompleted(ExtensionContext context) {
-		
+		this.testTimes = System.currentTimeMillis() - startTimes;
+		testContextSet =  getCaseSet(context);
+		this.allCount = testContextSet.size();
+		AtomicInteger errorNum = new AtomicInteger(0);
+		AtomicInteger failuresNum = new AtomicInteger(0);
+		testContextSet.forEach(caseContext->{
+			Throwable error = caseContext.getExecutionException().orElse(null);
+			if(error != null) {
+				if(AppClassLoader.extendsOf(error.getClass(), AssertionFailedError.class)) {
+					failuresNum.addAndGet(1);
+				}else {
+					errorNum.addAndGet(1);
+				}
+			}
+		});
+		this.errorCount = errorNum.get();
+		this.failedCount = failuresNum.get();
+		this.successCount = testContextSet.size()-this.errorCount-this.failedCount;
+		double rate = successCount/(double)testContextSet.size();
+		logger.debug(String.format("all case num :%s ,errors : %s ,failures : %s ,rate: %.2f %%", 
+				testContextSet.size(),this.errorCount,this.failedCount,rate));
+		logger.debug(String.format("the detail report please use report resolver", 
+				testContextSet.size(),errorNum.get(),failuresNum.get(),rate));
+		try {
+			exportReport();
+		}catch(Throwable t) {
+			logger.error("a error occur when export report",t);
+		}
+	}
+	private void exportReport() {
+		List<PluginTestReportResolver> resolverInstanceList = PlugsFactory.getPluginsInstanceList(PluginTestReportResolver.class);
+		for(PluginTestReportResolver resolver : resolverInstanceList) {
+			resolver.render(this, this.testContextSet);
+		}
+	}
+	public static String getTestCaseToken() {
+		return TEST_CASE_TOKEN;
+	}
+	public static Environment getEnvironment() {
+		return environment;
+	}
+	public String getMethodToken(ExtensionContext context) {
+		StringBuffer stringBuilder = new StringBuffer("");
+		while(context != null) {
+			stringBuilder.insert(0, context.getDisplayName());
+			context = context.getParent().orElse(null);
+			if(context != null) {
+				stringBuilder.insert(0, ".");
+			}
+		}
+		return stringBuilder.toString();
 	}
 	public void addTestCase(ExtensionContext context) {
+		List<ExtensionContext> caseSet =  getCaseSet(context);
+		caseSet.add(context);
+	}
+	public List<ExtensionContext> getCaseSet(ExtensionContext context) {
 		Store store = context.getRoot().getStore(PluginExetension.NAMESPACE);
-		store.put(context.getUniqueId(), context);
+		String testCaseId = context.getRoot().getUniqueId();
+		String caseId = (testCaseId+TEST_CASE_TOKEN).intern();
+		environment.executorOnce(caseId, ()->{
+			store.put(caseId, new ArrayList<ExtensionContext>());
+		});
+		List<ExtensionContext> caseMap = store.get(caseId,
+				new TypeToken<ArrayList<ExtensionContext>>() {}.getTypeClass());
+		return caseMap;
+	}
+	public long getTestTimes() {
+		return testTimes;
+	}
+	public void beginTest() {
+		this.startTimes = System.currentTimeMillis();
+	}
+	public int getAllCount() {
+		return allCount;
 	}
 }
