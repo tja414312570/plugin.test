@@ -49,15 +49,15 @@ public class SimplePluginTest {
 -----------------------------------------------------------
 test name  : SimplePluginTest
 test class : test.plugin.mvc.SimplePluginTest
-test date  : 2020-07-29T22:56:20.541
-test times : 128 ms
+test date  : 2020-07-29T23:03:44.393
+test times : 121 ms
 test result: all :3 ,errors : 1 ,failures : 1 ,rate: 0.33 %
 ---------------------the-report-details--------------------
 
 -----------------------------------------------------------
 case name     : JUnit Jupiter.SimplePluginTest.test()
 case result   : failed
-case times    : 50
+case times    : 47 ms
 case message  : expected: <a> but was: <A>
 case parameter: []
 
@@ -65,11 +65,11 @@ case parameter: []
 -----------------------------------------------------------
 case name     : JUnit Jupiter.SimplePluginTest.test(ParameterResolver)
 case result   : error
-case times    : 4
+case times    : 4 ms
 case message  : null
-case parameter: [com.yanan.frame.plugin.builder.resolver.ArrayParameterResolver@1a8622]
+case parameter: [com.yanan.frame.plugin.builder.resolver.ArrayParameterResolver@a5fe93]
 java.lang.NullPointerException
-      at test.plugin.mvc.SimplePluginTest.test(SimplePluginTest.java:27)
+      at test.plugin.mvc.SimplePluginTest.test(SimplePluginTest.java:26)
       at test.plugin.mvc.SimplePluginTest$$EnhancerByCGLIB$$4968d7b2.CGLIB$test$1(<generated>:-1)
       at test.plugin.mvc.SimplePluginTest$$EnhancerByCGLIB$$4968d7b2$$FastClassByCGLIB$$7da765c6.invoke(<generated>:-1)
       at net.sf.cglib.proxy.MethodProxy.invokeSuper(MethodProxy.java:228)
@@ -145,7 +145,6 @@ java.lang.NullPointerException
 -----------------------------------------------------------
 case name     : JUnit Jupiter.SimplePluginTest.test2(int)
 case result   : sucess
-case times    : 0
+case times    : 0 ms
 case parameter: [0]
-
 ```
