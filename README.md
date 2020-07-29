@@ -49,18 +49,17 @@ public class SimplePluginTest {
 -----------------------------------------------------------
 test name  : SimplePluginTest
 test class : test.plugin.mvc.SimplePluginTest
-test date  : 2020-07-29T23:03:44.393
-test times : 121 ms
+test date  : 2020-07-29T23:05:37.231
+test times : 108 ms
 test result: all :3 ,errors : 1 ,failures : 1 ,rate: 0.33 %
 ---------------------the-report-details--------------------
 
 -----------------------------------------------------------
 case name     : JUnit Jupiter.SimplePluginTest.test()
 case result   : failed
-case times    : 47 ms
+case times    : 38 ms
 case message  : expected: <a> but was: <A>
 case parameter: []
-
 
 -----------------------------------------------------------
 case name     : JUnit Jupiter.SimplePluginTest.test(ParameterResolver)
@@ -141,10 +140,9 @@ java.lang.NullPointerException
       at org.eclipse.jdt.internal.junit.runner.RemoteTestRunner.run(RemoteTestRunner.java:464)
       at org.eclipse.jdt.internal.junit.runner.RemoteTestRunner.main(RemoteTestRunner.java:210)
 
-
 -----------------------------------------------------------
 case name     : JUnit Jupiter.SimplePluginTest.test2(int)
 case result   : sucess
-case times    : 0 ms
+case times    : 1 ms
 case parameter: [0]
 ```
