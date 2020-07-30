@@ -4,6 +4,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import com.yanan.frame.plugin.annotations.Register;
 import com.yanan.frame.plugin.annotations.Service;
@@ -31,8 +33,10 @@ public class SimplePluginTest {
 		assertEquals("a", "A");
 		
 	}
-	@Test
+	@ParameterizedTest
+	@ValueSource(ints = {2, 4, 8})
 	public void test2(int num) {
+		System.out.println(num);
 		assertEquals("A", "A");
 	}
 }

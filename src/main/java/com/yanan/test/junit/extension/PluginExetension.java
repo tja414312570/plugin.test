@@ -1,5 +1,8 @@
 package com.yanan.test.junit.extension;
 
+import java.lang.annotation.Annotation;
+import java.util.Objects;
+
 import org.junit.jupiter.api.extension.AfterAllCallback;
 import org.junit.jupiter.api.extension.AfterEachCallback;
 import org.junit.jupiter.api.extension.AfterTestExecutionCallback;
@@ -39,11 +42,20 @@ ParameterResolver,TestInstanceFactory,TestInstancePreDestroyCallback{
 	@Override
 	public void beforeAll(ExtensionContext context) throws Exception {
 		PluginTestContext testContext = PluginTestContext.getTestContext(context);
-		testContext.beginTest();
+		if(Objects.equals(context.getRequiredTestClass(), testContext.getExtensionContext().getRequiredTestClass()))
+			testContext.beginTest();
 	}
+	@SuppressWarnings("unchecked")
 	@Override
 	public boolean supportsParameter(ParameterContext parameterContext, ExtensionContext extensionContext)
 			throws ParameterResolutionException {
+		try {
+			Class<? extends Annotation> clzz = (Class<? extends Annotation>)
+					Class.forName("org.junit.jupiter.params.ParameterizedTest");
+			if(extensionContext.getRequiredTestMethod().getAnnotation(clzz) != null)
+				return false;
+		}catch(ClassNotFoundException e) {
+		}
 		return true;
 	}
 	@Override
@@ -76,9 +88,11 @@ ParameterResolver,TestInstanceFactory,TestInstancePreDestroyCallback{
 	@Override
 	public void afterAll(ExtensionContext context) throws Exception {
 		PluginTestContext testContext = PluginTestContext.getTestContext(context);
-		testContext.testCompleted(context);
-		logger.debug(String.format("all test completed at [%s ms]", testContext.getTestTimes()));
-		PlugsFactory.getInstance().destory();
+		if(Objects.equals(context.getRequiredTestClass(), testContext.getExtensionContext().getRequiredTestClass())) {
+			testContext.testCompleted(context);
+			logger.debug(String.format("all test completed at [%s ms]", testContext.getTestTimes()));
+			PlugsFactory.getInstance().destory();
+		}
 	}
 	@Override
 	public Object createTestInstance(TestInstanceFactoryContext factoryContext, ExtensionContext extensionContext)
