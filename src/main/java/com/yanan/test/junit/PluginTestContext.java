@@ -209,11 +209,12 @@ public class PluginTestContext{
 	public String getMethodToken(ExtensionContext context) {
 		StringBuffer stringBuilder = new StringBuffer("");
 		ExtensionContext temp = context;
-		while(context != null && !context.equals(temp.getRoot())
-				&& stringBuilder.insert(0, ".").length()>0) {
+		do {
 			stringBuilder.insert(0, context.getDisplayName());
 			context = context.getParent().orElse(null);
-		}
+		}while(context != null 
+				&& !context.equals(temp.getRoot())
+				&& stringBuilder.insert(0, ".").length()>0);
 		return stringBuilder.toString();
 	}
 	public void addTestCase(ExtensionContext context) {
