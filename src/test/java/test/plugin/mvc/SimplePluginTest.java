@@ -15,7 +15,7 @@ import com.yanan.test.junit.ReportResolver;
 import com.yanan.test.junit.StandTextReportResolver;
 import com.yanan.test.junit.extension.PluginExetension;
 
-@Export(value="project:/target/test_export.txt")//导出文件地址
+@Export(value="project:/src/test/report/{c}_{d}.txt")//导出文件地址
 @ExtendWith(PluginExetension.class)//使用Plugin上下文
 @ReportResolver(StandTextReportResolver.class)//使用标准文本打印测试报告
 @Register//标记为Register才能使用@Service注入服务

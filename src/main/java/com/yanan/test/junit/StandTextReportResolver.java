@@ -58,7 +58,9 @@ public class StandTextReportResolver implements PluginTestReportResolver{
 		Assert.isTrue(StringUtil.isBlank(exportPath), "the export path is null");
 		//获取导出路径的资源
 		ResourceLoader resourceLoader = new DefaultResourceLoader();
-		String realPath = exportPath.replace("{}", new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
+		String realPath = exportPath
+				.replace("{d}", new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()))
+				.replace("{c}", requiredClass.getSimpleName());
 		Resource resource = resourceLoader.getResource(realPath);
 		if(resource == null)
 			throw new ResourceLoaderException("the resource is not found "+realPath);

@@ -1,0 +1,22 @@
+-----------------------------------------------------------
+    PLUGIN TEST REPORT SNAPSHOT
+-----------------------------------------------------------
+test name  : 内嵌测试类
+test class : test.plugin.mvc.NestdTest
+test date  : 2020-07-30T17:47:28.595
+test times : 109 ms
+test result: all :2 ,errors : 0 ,failures : 0 ,rate: 100.00 %
+---------------------the-report-details--------------------
+
+-----------------------------------------------------------
+case name     : 内嵌测试类.第一个内嵌测试类.test().
+case result   : sucess
+case times    : 39 ms
+case parameter: []
+
+-----------------------------------------------------------
+case name     : 内嵌测试类.第二个内嵌测试类.test().
+case result   : sucess
+case times    : 7 ms
+case parameter: []
+
