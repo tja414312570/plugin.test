@@ -17,7 +17,7 @@ import com.yanan.frame.plugin.Environment;
 import com.yanan.frame.plugin.PlugsFactory;
 import com.yanan.test.junit.extension.PluginExetension;
 import com.yanan.utils.asserts.Assert;
-import com.yanan.utils.reflect.AppClassLoader;
+import com.yanan.utils.reflect.ReflectUtils;
 import com.yanan.utils.reflect.TypeToken;
 import com.yanan.utils.resource.ResourceManager;
 
@@ -82,7 +82,7 @@ public class PluginTestContext{
 	public static PluginTestContext getTestContext(ExtensionContext context) {
 		Assert.isNull(context,"the context is null");
 		String contextId = context.getRoot().getUniqueId().intern();
-		environment.executorOnce(contextId, ()->{
+		environment.executeOnlyOnce(contextId, ()->{
 			environment.setVariable(contextId, new PluginTestContext(context));
 			preparedPluginContext(context);
 		});
@@ -95,7 +95,7 @@ public class PluginTestContext{
 	 */
 	private static void preparedPluginContext(ExtensionContext context) {
 		String rootId = context.getRoot().getUniqueId();
-		environment.executorOnce(rootId, ()->{
+		environment.executeOnlyOnce(rootId, ()->{
 			logger.info("plugin test frame snapshot version");
 			Class<?> testClass = context.getRequiredTestClass();
 			logger.info("current test main class:"+context.getRequiredTestClass().getName());
@@ -165,7 +165,7 @@ public class PluginTestContext{
 		testContextSet.forEach(caseContext->{
 			Throwable error = caseContext.getExecutionException().orElse(null);
 			if(error != null) {
-				if(AppClassLoader.extendsOf(error.getClass(), AssertionFailedError.class)) {
+				if(ReflectUtils.extendsOf(error.getClass(), AssertionFailedError.class)) {
 					failuresNum.addAndGet(1);
 				}else {
 					errorNum.addAndGet(1);
@@ -254,7 +254,7 @@ public class PluginTestContext{
 		Store store = context.getRoot().getStore(PluginExetension.NAMESPACE);
 		String testCaseId = context.getRoot().getUniqueId();
 		String caseId = (testCaseId+TEST_CASE_TOKEN).intern();
-		environment.executorOnce(caseId, ()->{
+		environment.executeOnlyOnce(caseId, ()->{
 			store.put(caseId, new ArrayList<ExtensionContext>());
 		});
 		List<ExtensionContext> caseMap = store.get(caseId,
@@ -279,7 +279,7 @@ public class PluginTestContext{
 	public void addTestCaseVariable(ExtensionContext context, String key,Object value) {
 		Store store = context.getRoot().getStore(PluginExetension.NAMESPACE);
 		String rootId = (context.getUniqueId()+CONTEXT_VARIABLE_TOKEN).intern();
-		environment.executorOnce(rootId, ()->{
+		environment.executeOnlyOnce(rootId, ()->{
 			store.put(rootId, new HashMap<>());
 		});
 		Map<String,Object> variable = store.get(rootId,new TypeToken<Map<String,Object>>(){}.getTypeClass());

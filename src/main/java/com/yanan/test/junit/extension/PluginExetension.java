@@ -25,7 +25,7 @@ import org.slf4j.LoggerFactory;
 import com.yanan.frame.plugin.PlugsFactory;
 import com.yanan.frame.plugin.builder.PluginInstanceFactory;
 import com.yanan.test.junit.PluginTestContext;
-import com.yanan.utils.reflect.AppClassLoader;
+import com.yanan.utils.reflect.ParameterUtils;
 
 
 /**
@@ -62,7 +62,7 @@ ParameterResolver,TestInstanceFactory,TestInstancePreDestroyCallback{
 	public Object resolveParameter(ParameterContext parameterContext, ExtensionContext extensionContext)
 			throws ParameterResolutionException {
 		Class<?> parameterType = parameterContext.getParameter().getType();
-		return AppClassLoader.castType(null, parameterType);
+		return ParameterUtils.castType(null, parameterType);
 	}
 	@Override
 	public void afterTestExecution(ExtensionContext context) throws Exception {

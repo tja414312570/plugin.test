@@ -22,7 +22,7 @@ import com.yanan.framework.resource.ResourceLoader;
 import com.yanan.framework.resource.ResourceLoaderException;
 import com.yanan.utils.ArrayUtils;
 import com.yanan.utils.asserts.Assert;
-import com.yanan.utils.reflect.AppClassLoader;
+import com.yanan.utils.reflect.ReflectUtils;
 import com.yanan.utils.resource.Resource;
 import com.yanan.utils.string.StringUtil;
 
@@ -59,7 +59,7 @@ public class StandTextReportResolver implements PluginTestReportResolver{
 		//获取导出路径的资源
 		ResourceLoader resourceLoader = new DefaultResourceLoader();
 		String realPath = exportPath
-				.replace("{d}", new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()))
+				.replace("{d}", new SimpleDateFormat("yyyy-MM-dd HH_mm_ss").format(new Date()))
 				.replace("{c}", requiredClass.getSimpleName());
 		Resource resource = resourceLoader.getResource(realPath);
 		if(resource == null)
@@ -123,7 +123,7 @@ public class StandTextReportResolver implements PluginTestReportResolver{
 		MethodHandler methodHandler = context.getTestCaseVariable(caseContext, TestMethodHandler.METHOD_HANDLER_TOKEN);
 		if(error != null) {
 			//如果是断言错误
-			if(AppClassLoader.extendsOf(error.getClass(), AssertionFailedError.class)) {
+			if(ReflectUtils.extendsOf(error.getClass(), AssertionFailedError.class)) {
 				if(matchType(ReportType.FAILED)) {
 					wrtieFailedReport(writer, error, caseName, times, methodHandler);
 				}
