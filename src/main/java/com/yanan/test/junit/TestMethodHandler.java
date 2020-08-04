@@ -3,11 +3,11 @@ package com.yanan.test.junit;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtensionContext;
 
-import com.yanan.frame.plugin.ProxyModel;
-import com.yanan.frame.plugin.annotations.Register;
-import com.yanan.frame.plugin.annotations.Support;
-import com.yanan.frame.plugin.handler.InvokeHandler;
-import com.yanan.frame.plugin.handler.MethodHandler;
+import com.yanan.framework.plugin.ProxyModel;
+import com.yanan.framework.plugin.annotations.Register;
+import com.yanan.framework.plugin.annotations.Support;
+import com.yanan.framework.plugin.handler.InvokeHandler;
+import com.yanan.framework.plugin.handler.MethodHandler;
 
 /**
  * 测试参数记录Handler

@@ -5,11 +5,11 @@
 <web-app>
   <display-name>Archetype Created Web Application</display-name>
   <listener>
-  	<listener-class>com.yanan.frame.servlets.ServletContextInit</listener-class>
+  	<listener-class>com.yanan.framework.servlets.ServletContextInit</listener-class>
   </listener>
   <servlet>
   	<servlet-name>plugin.mvc</servlet-name>
-  	<servlet-class>com.yanan.frame.servlets.CoreDispatcher</servlet-class>
+  	<servlet-class>com.yanan.framework.servlets.CoreDispatcher</servlet-class>
   </servlet>
   <servlet-mapping>
   	<servlet-name>plugin.mvc</servlet-name>

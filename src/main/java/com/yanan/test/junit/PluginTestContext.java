@@ -13,8 +13,8 @@ import org.opentest4j.AssertionFailedError;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.yanan.frame.plugin.Environment;
-import com.yanan.frame.plugin.PlugsFactory;
+import com.yanan.framework.plugin.Environment;
+import com.yanan.framework.plugin.PlugsFactory;
 import com.yanan.test.junit.extension.PluginExetension;
 import com.yanan.utils.asserts.Assert;
 import com.yanan.utils.reflect.ReflectUtils;

@@ -15,8 +15,8 @@ import org.opentest4j.AssertionFailedError;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.yanan.frame.plugin.annotations.Register;
-import com.yanan.frame.plugin.handler.MethodHandler;
+import com.yanan.framework.plugin.annotations.Register;
+import com.yanan.framework.plugin.handler.MethodHandler;
 import com.yanan.framework.resource.DefaultResourceLoader;
 import com.yanan.framework.resource.ResourceLoader;
 import com.yanan.framework.resource.ResourceLoaderException;

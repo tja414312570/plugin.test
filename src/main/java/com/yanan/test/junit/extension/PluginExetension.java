@@ -22,8 +22,8 @@ import org.junit.jupiter.api.extension.TestInstantiationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.yanan.frame.plugin.PlugsFactory;
-import com.yanan.frame.plugin.builder.PluginInstanceFactory;
+import com.yanan.framework.plugin.PlugsFactory;
+import com.yanan.framework.plugin.builder.PluginInstanceFactory;
 import com.yanan.test.junit.PluginTestContext;
 import com.yanan.utils.reflect.ParameterUtils;
 

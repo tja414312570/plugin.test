@@ -7,9 +7,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
-import com.yanan.frame.plugin.annotations.Register;
-import com.yanan.frame.plugin.annotations.Service;
-import com.yanan.frame.plugin.builder.resolver.ParameterResolver;
+import com.yanan.framework.plugin.annotations.Register;
+import com.yanan.framework.plugin.annotations.Service;
+import com.yanan.framework.plugin.builder.resolver.ParameterResolver;
 import com.yanan.test.junit.Export;
 import com.yanan.test.junit.ReportResolver;
 import com.yanan.test.junit.StandTextReportResolver;

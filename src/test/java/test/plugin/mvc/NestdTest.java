@@ -6,9 +6,9 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
-import com.yanan.frame.plugin.PlugsFactory;
-import com.yanan.frame.plugin.annotations.Register;
-import com.yanan.frame.plugin.definition.RegisterDefinition;
+import com.yanan.framework.plugin.PlugsFactory;
+import com.yanan.framework.plugin.annotations.Register;
+import com.yanan.framework.plugin.definition.RegisterDefinition;
 import com.yanan.test.junit.Export;
 import com.yanan.test.junit.ReportResolver;
 import com.yanan.test.junit.StandTextReportResolver;
