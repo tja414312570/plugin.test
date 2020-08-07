@@ -102,7 +102,7 @@ public class PluginTestContext{
 			//设置测试上下文类路径为主类路径
 			String classPath = testClass.getResource(".").getPath();
 			String packagePath =testClass.getPackage().getName().replace(".", "/");
-			classPath = classPath.substring(0,classPath.indexOf(packagePath));
+			classPath = classPath.substring(0,classPath.lastIndexOf(packagePath));
 			logger.info("test environment classpath :"+classPath);
 			ResourceManager.setClassPath(classPath, 0);
 			logger.info("start plugin at ["+LocalDateTime.now()+"]");
